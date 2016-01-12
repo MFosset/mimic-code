@@ -1,0 +1,9 @@
+-- Creates an improved table with hospital admission, ICU admission, order of ICU admission and patient demographics
+-- All timestamps are in posixtime, age and LOS are in days
+-- All the values are numerical (e.g. gender or type of ICU)
+-- By Matthieu Komorowski January 2016 @matkomorowski
+
+select ad.subject_id, ad.hadm_id, i.icustay_id ,extract(epoch from ad.admittime) as admittime, ROW_NUMBER() over (partition by ad.subject_id order by i.intime asc) as adm_order, case when i.first_careunit='NICU' then 5 when i.first_careunit='SICU' then 2 when i.first_careunit='CSRU' then 4 when i.first_careunit='CCU' then 6 when i.first_careunit='MICU' then 1 when i.first_careunit='TSICU' then 3 end as unit,  extract(epoch from i.intime) as intime, extract(epoch from i.outtime) as outtime, i.los, EXTRACT(EPOCH FROM (i.intime-p.dob)::INTERVAL)/86400 as age, extract(epoch from p.dob) as dob, extract(epoch from p.dod) as dod, p.expire_flag,  case when p.gender='M' then 1 when p.gender='F' then 2 end as gender
+from mimiciii.admissions ad, mimiciii.icustays i, mimiciii.patients p
+where ad.hadm_id=i.hadm_id and p.subject_id=i.subject_id
+order by subject_id asc, intime asc
