@@ -121,7 +121,7 @@ select co.subject_id, co.hadm_id, co.icustay_id
      when preiculos < '0 0:10:12' then 5
      when preiculos < '0 4:57:00' then 3
      when preiculos < '1 0:00:00' then 0
-     when preiculos < '12 23:48:00' then 1
+     when preiculos > '12 23:48:00' then 1
      else 2 end as preiculos_score
 ,  case when age is null then null
       when age < 24 then 0
